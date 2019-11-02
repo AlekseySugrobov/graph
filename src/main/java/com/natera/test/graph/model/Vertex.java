@@ -1,11 +1,15 @@
 package com.natera.test.graph.model;
 
 import com.natera.test.graph.exception.VertexNullContentException;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Objects;
 
-@Data
+@Getter
+@ToString
+@EqualsAndHashCode
 public class Vertex<T> {
     private final T content;
 
