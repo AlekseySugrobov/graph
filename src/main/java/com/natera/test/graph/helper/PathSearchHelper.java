@@ -4,7 +4,7 @@ import com.natera.test.graph.exception.IllegalGraphTypeException;
 import com.natera.test.graph.model.Edge;
 import com.natera.test.graph.model.Type;
 import com.natera.test.graph.model.Vertex;
-import com.natera.test.graph.utils.EdgeUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,7 +16,16 @@ public class PathSearchHelper {
     private final Type graphType;
     private Set<Vertex> visited = new HashSet<>();
     private List<Vertex> path = new ArrayList<>();
+    private List<Edge> edgesPath = new ArrayList<>();
 
+    /**
+     * Initialize path search helper.
+     *
+     * @param startVertex start vertex
+     * @param endVertex   end vertex
+     * @param edgeList    edges
+     * @param graphType   graph type
+     */
     public PathSearchHelper(Vertex startVertex, Vertex endVertex, List<Edge> edgeList, Type graphType) {
         this.startVertex = startVertex;
         this.endVertex = endVertex;
@@ -30,22 +39,35 @@ public class PathSearchHelper {
      * @return edge path.
      */
     public List<Edge> findEdgePath() {
-        List<Vertex> vertexPath = this.findVertexPath();
-        return EdgeUtils.convertToEdgesPath(vertexPath);
+        this.findVertexPath();
+        this.convertToEdgesPath();
+        return this.edgesPath;
     }
 
     /**
-     * Search vertex path.
-     *
-     * @return vertex path
+     * Map list of vertices to list of edges.
      */
-    private List<Vertex> findVertexPath() {
+    private void convertToEdgesPath() {
+        if (ObjectUtils.isEmpty(this.path)) {
+            return;
+        }
+        for (int index = 0; index < this.path.size() - 1; index++) {
+            Vertex currentVertex = this.path.get(index);
+            Vertex nextVertex = this.path.get(index + 1);
+            this.edgesPath.add(new Edge(currentVertex, nextVertex));
+        }
+    }
+
+
+    /**
+     * Search vertex path.
+     */
+    private void findVertexPath() {
         this.path.add(this.startVertex);
         boolean isPathExists = this.findVertexPathRecursive(this.startVertex, this.endVertex);
-        if (isPathExists) {
-            return this.path;
+        if (!isPathExists) {
+            this.path = Collections.emptyList();
         }
-        return Collections.emptyList();
     }
 
     /**
@@ -79,17 +101,17 @@ public class PathSearchHelper {
      * @param vertex vertex
      * @return list with adjacent vertices
      */
-    protected List<Vertex> getAdjacentVertices(Vertex vertex, List<Edge> edges) {
+    private List<Vertex> getAdjacentVertices(Vertex vertex, List<Edge> edges) {
         switch (this.graphType) {
             case DIRECTED:
                 return edges.stream()
-                        .filter(e -> e.getFirstVertex().equals(vertex))
+                        .filter(edge -> edge.isStartVertex(vertex))
                         .map(Edge::getSecondVertex)
                         .collect(Collectors.toList());
             case UNDIRECTED:
                 return edges.stream()
-                        .filter(edge -> vertex.equals(edge.getFirstVertex()) || vertex.equals(edge.getSecondVertex()))
-                        .map(edge -> vertex.equals(edge.getFirstVertex()) ? edge.getSecondVertex() : edge.getFirstVertex())
+                        .filter(edge -> edge.containsVertex(vertex))
+                        .map(edge -> edge.getAdjacentVertex(vertex))
                         .collect(Collectors.toList());
             default:
                 throw new IllegalGraphTypeException("Unknown graph type");

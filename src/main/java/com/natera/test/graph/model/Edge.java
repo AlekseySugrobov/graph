@@ -1,5 +1,6 @@
 package com.natera.test.graph.model;
 
+import com.natera.test.graph.exception.VertexNotFoundException;
 import com.natera.test.graph.exception.VertexNullException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,5 +30,38 @@ public class Edge {
         }
         this.firstVertex = firstVertex;
         this.secondVertex = secondVertex;
+    }
+
+    /**
+     * Checks if edge contains vertex.
+     *
+     * @param vertex {@link Vertex}
+     * @return true if contains
+     */
+    public boolean containsVertex(Vertex vertex) {
+        return Objects.equals(this.firstVertex, vertex) || Objects.equals(this.secondVertex, vertex);
+    }
+
+    /**
+     * Checks if vertex is start vertex.
+     *
+     * @param vertex {@link Vertex}
+     * @return true if yes
+     */
+    public boolean isStartVertex(Vertex vertex) {
+        return Objects.equals(this.firstVertex, vertex);
+    }
+
+    /**
+     * Gets adjacent vertex for specified vertex.
+     *
+     * @param vertex {@link Vertex}
+     * @return adjacent vertex
+     */
+    public Vertex getAdjacentVertex(Vertex vertex) {
+        if (!this.containsVertex(vertex)) {
+            throw new VertexNotFoundException(vertex);
+        }
+        return this.isStartVertex(vertex) ? this.secondVertex : this.firstVertex;
     }
 }

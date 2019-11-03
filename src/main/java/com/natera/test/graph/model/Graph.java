@@ -4,16 +4,25 @@ import com.natera.test.graph.exception.IllegalGraphTypeException;
 import com.natera.test.graph.exception.UnableGetPathException;
 import com.natera.test.graph.exception.VertexNotFoundException;
 import com.natera.test.graph.helper.PathSearchHelper;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Describes graph with actions.
+ */
 public class Graph {
     private List<Vertex> vertices;
     private List<Edge> edges;
     private Type type;
 
+    /**
+     * Creates graph instance with specified type.
+     *
+     * @param type type. See {@link Type}
+     */
     public Graph(Type type) {
         if (Objects.isNull(type)) {
             throw new IllegalGraphTypeException("Graph type can't be null");
@@ -70,15 +79,25 @@ public class Graph {
         return pathSearchHelper.findEdgePath();
     }
 
+    /**
+     * Returns vertices count.
+     *
+     * @return vertices count.
+     */
     public int getVerticesCount() {
-        if (Objects.isNull(this.vertices) || this.vertices.isEmpty()) {
+        if (ObjectUtils.isEmpty(this.vertices)) {
             return 0;
         }
         return this.vertices.size();
     }
 
+    /**
+     * Returns edges count.
+     *
+     * @return edges count.
+     */
     public int getEdgesCount() {
-        if (Objects.isNull(this.edges) || this.edges.isEmpty()) {
+        if (ObjectUtils.isEmpty(this.edges)) {
             return 0;
         }
         return this.edges.size();
